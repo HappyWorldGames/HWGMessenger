@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Private Chat</string>
+
+    <string name="auth_failed">Auth Failed</string>
+    <string name="auth_accept">Auth Accept</string>
+    <string name="avatar">avatar</string>
+    <string name="name">Name</string>
+    <string name="scan_qr">Scan QR</string>
+    <string name="user_qr">User QR</string>
+    <string name="failed">Failed</string>
+    <string name="successful">Successful</string>
+    <string name="message">Message</string>
+    <string name="send">send</string>
+</resources>
