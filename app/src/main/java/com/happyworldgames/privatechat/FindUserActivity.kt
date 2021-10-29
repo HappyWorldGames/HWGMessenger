@@ -8,16 +8,11 @@ import android.os.Bundle
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import com.firebase.ui.database.FirebaseRecyclerOptions
-import com.firebase.ui.database.ObservableSnapshotArray
 import com.google.android.material.snackbar.Snackbar
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.Query
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.integration.android.IntentIntegrator
 import com.google.zxing.qrcode.QRCodeWriter
-import com.happyworldgames.privatechat.data.Chat
-import com.happyworldgames.privatechat.data.User
+import com.happyworldgames.privatechat.data.DataBase
 import com.happyworldgames.privatechat.databinding.ActivityFindUserBinding
 
 class FindUserActivity : AppCompatActivity() {
@@ -39,13 +34,13 @@ class FindUserActivity : AppCompatActivity() {
                 val result = IntentIntegrator.parseActivityResult(it.resultCode, it.data)
 
                 if(result.contents != null) {
-                    DataBase.getUserByUid(result.contents).child("info").get().addOnSuccessListener { dataSnap ->
+                    DataBase.getUserByUid(result.contents).get().addOnSuccessListener { dataSnap ->
                         try {
-                            val user = User.getUserFromHashMap(dataSnap.value as HashMap<String, String>)
-
-                            DataBase.getChatsByUserUid(DataBase.getCurrentUser().uid).child(user.name).setValue(Chat(user.name, user.uid))
-                            DataBase.getChatsByUserUid(user.uid).child(DataBase.getCurrentUser().displayName!!).setValue(Chat(DataBase.getCurrentUser().displayName!!, DataBase.getCurrentUser().uid))
-
+                        /*    val user = dataSnap.getValue(User::class.java) ?: return@addOnSuccessListener
+                            DataBase.getChatsByUserUid(DataBase.getCurrentUser().uid).child(user.name).setValue(Group(user.name, user.uid))
+                            DataBase.getChatsByUserUid(user.uid).child(DataBase.getCurrentUser().displayName!!).setValue(Group(
+                                DataBase.getCurrentUser().displayName!!, DataBase.getCurrentUser().uid))
+*/
                             Snackbar.make(activityFindUserBinding.root, getString(R.string.successful), Snackbar.LENGTH_LONG).show()
                         }catch (e: Throwable) {
                             Snackbar.make(activityFindUserBinding.root, getString(R.string.failed), Snackbar.LENGTH_LONG).show()
@@ -76,5 +71,9 @@ class FindUserActivity : AppCompatActivity() {
         scanner.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE)
         scanner.setPrompt("Scan QR")
         mQrResultLauncher.launch(scanner.createScanIntent())
+    }
+
+    private fun addChat(){
+        //use phone number for name chat
     }
 }

@@ -6,34 +6,53 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.firebase.ui.database.FirebaseRecyclerAdapter
 import com.firebase.ui.database.FirebaseRecyclerOptions
 import com.happyworldgames.privatechat.ChatActivity
-import com.happyworldgames.privatechat.data.Chat
 import com.happyworldgames.privatechat.R
+import com.happyworldgames.privatechat.data.DataBase
+import com.happyworldgames.privatechat.data.Room
+import com.happyworldgames.privatechat.data.Storage
 import com.happyworldgames.privatechat.databinding.ChatItemBinding
 
-class ChatsRecyclerAdapter(options: FirebaseRecyclerOptions<Chat>) : FirebaseRecyclerAdapter<Chat, ChatsRecyclerAdapter.ChatViewHolder>(options) {
+class ChatsRecyclerAdapter(options: FirebaseRecyclerOptions<Room>) : FirebaseRecyclerAdapter<Room,
+        ChatsRecyclerAdapter.ChatViewHolder>(options) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChatViewHolder {
-        val view: View = LayoutInflater.from(parent.context).inflate(R.layout.chat_item, parent, false)
+        val view: View = LayoutInflater.from(parent.context).inflate(R.layout.chat_item, parent,
+            false)
         return ChatViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: ChatViewHolder, position: Int, model: Chat) {
-        holder.chatItemBinding.chatName.text = model.chatName
-        holder.chatItemBinding.lastMessage.text = if(model.lastMessage.length > 20) model.lastMessage.substring(0, 20) else model.lastMessage
-        holder.chatItemBinding.timeLastMessage.text = DateFormat.format("HH:mm", model.timeLastMessage)
-        if(model.chatIcon != null) holder.chatItemBinding.avatarIcon.setImageBitmap(model.chatIcon)
-        else holder.chatItemBinding.avatarIcon.setImageResource(R.drawable.ic_avatar)
+    override fun onBindViewHolder(holder: ChatViewHolder, position: Int, model: Room) {
+        val context = holder.chatItemBinding.root.context
 
+        DataBase.getRoomNameAndAvatarByRoom(context, model) { name, avatarPath ->
+            holder.chatItemBinding.chatName.text = name
+
+            Storage.getAvatarUriByPath(avatarPath){
+                Glide.with(context)
+                    .load(it)
+                    .into(holder.chatItemBinding.avatarIcon)
+            }
+        }
+        DataBase.getRoomLastMessageByRoom(model){ lastMessage ->
+            println("Hi: ${lastMessage?.text_message}")
+            if(lastMessage == null) return@getRoomLastMessageByRoom
+
+            val textMessage = lastMessage.text_message
+            val timeMessage = lastMessage.time_message
+            holder.chatItemBinding.lastMessage.text = if(textMessage.length > 20) textMessage.substring(0, 20)
+            else textMessage
+            holder.chatItemBinding.timeLastMessage.text = DateFormat.format("HH:mm", timeMessage)
+        }
         holder.chatItemBinding.root.setOnClickListener {
-            val context = holder.chatItemBinding.root.context
             val intent = Intent(context, ChatActivity::class.java)
 
             intent.apply {
-                putExtra("chat_name", model.chatName)
-                putExtra("user_uid", model.userUid)
+                putExtra("room_type", model.room_type)
+                putExtra("room_id", model.room_id)
             }
 
             context.startActivity(intent)

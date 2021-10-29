@@ -1,9 +1,3 @@
 package com.happyworldgames.privatechat.data
 
-class User(var name: String = "", var email: String = "", var uid: String = "") {
-    companion object {
-        fun getUserFromHashMap(hashMap: HashMap<String, String>): User {
-            return User(hashMap["name"]!!, hashMap["email"]!!, hashMap["uid"]!!)
-        }
-    }
-}
+class User(var uid: String = "", var phone_number: String = "", var avatar_path: String = "/default_avatar.png")
