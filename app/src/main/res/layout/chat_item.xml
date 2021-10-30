@@ -19,6 +19,7 @@
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:contentDescription="@string/avatar"
+            android:transitionName="avatar_icon"
             tools:srcCompat="@drawable/ic_avatar" />
     </androidx.cardview.widget.CardView>
 
@@ -28,6 +29,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:text="@string/name"
+        android:transitionName="chat_name"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
         app:layout_constraintBottom_toTopOf="@id/last_message"
         app:layout_constraintStart_toEndOf="@+id/avatar_icon_card_view"

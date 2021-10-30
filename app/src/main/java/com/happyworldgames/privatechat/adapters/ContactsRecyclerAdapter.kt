@@ -11,10 +11,12 @@ import com.happyworldgames.privatechat.data.Contact
 import com.happyworldgames.privatechat.data.DataBase
 import com.happyworldgames.privatechat.databinding.ContactItemBinding
 
-class ContactsRecyclerAdapter(private val contacts: Set<Contact>) : RecyclerView.Adapter<ContactsRecyclerAdapter.ContactHolder>() {
+class ContactsRecyclerAdapter(private val contacts: Set<Contact>)
+    : RecyclerView.Adapter<ContactsRecyclerAdapter.ContactHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ContactHolder {
-        val view: View = LayoutInflater.from(parent.context).inflate(R.layout.contact_item, parent, false)
+        val view: View = LayoutInflater.from(parent.context).inflate(R.layout.contact_item,
+            parent, false)
         return ContactHolder(view)
     }
 

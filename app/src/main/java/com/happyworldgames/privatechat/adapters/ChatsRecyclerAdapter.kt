@@ -1,10 +1,15 @@
 package com.happyworldgames.privatechat.adapters
 
+import android.app.Activity
 import android.content.Intent
 import android.text.format.DateFormat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.app.ActivityOptionsCompat
+import androidx.core.util.Pair
+import androidx.core.util.component1
+import androidx.core.util.component2
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.firebase.ui.database.FirebaseRecyclerAdapter
@@ -38,7 +43,6 @@ class ChatsRecyclerAdapter(options: FirebaseRecyclerOptions<Room>) : FirebaseRec
             }
         }
         DataBase.getRoomLastMessageByRoom(model){ lastMessage ->
-            println("Hi: ${lastMessage?.text_message}")
             if(lastMessage == null) return@getRoomLastMessageByRoom
 
             val textMessage = lastMessage.text_message
@@ -55,7 +59,12 @@ class ChatsRecyclerAdapter(options: FirebaseRecyclerOptions<Room>) : FirebaseRec
                 putExtra("room_id", model.room_id)
             }
 
-            context.startActivity(intent)
+            val p1 = Pair.create(holder.chatItemBinding.chatName as View, "chat_name")
+            val p2 = Pair.create(holder.chatItemBinding.avatarIcon as View, "avatar_icon")
+
+            val options = ActivityOptionsCompat.makeSceneTransitionAnimation(context as Activity, p1, p2)
+
+            context.startActivity(intent, options.toBundle())
         }
     }
 

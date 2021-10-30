@@ -68,7 +68,7 @@ class MainActivity : AppCompatActivity() {
         activityMain.addChatFab.visibility = View.VISIBLE
 
         val query: Query = DataBase.getUserRoomsByUid(DataBase.getCurrentUser().uid)
-            .limitToLast(50)
+            .orderByChild("reverse_time_last_message").limitToLast(50)
 
         val options = FirebaseRecyclerOptions.Builder<Room>()
             .setQuery(query, Room::class.java)

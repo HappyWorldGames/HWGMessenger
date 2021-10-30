@@ -1,6 +1,8 @@
 package com.happyworldgames.privatechat.adapters
 
+import android.graphics.Color
 import android.text.format.DateFormat
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,21 +16,31 @@ import com.happyworldgames.privatechat.data.Message
 import com.happyworldgames.privatechat.data.User
 import com.happyworldgames.privatechat.databinding.MessageItemBinding
 
-class MessagesRecyclerAdapter(options: FirebaseRecyclerOptions<Message>, val roomType: String) : FirebaseRecyclerAdapter<Message, MessagesRecyclerAdapter.MessageViewHolder>(options) {
+class MessagesRecyclerAdapter(options: FirebaseRecyclerOptions<Message>, private val roomType: String)
+    : FirebaseRecyclerAdapter<Message, MessagesRecyclerAdapter.MessageViewHolder>(options) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MessageViewHolder {
-        val view: View = LayoutInflater.from(parent.context).inflate(R.layout.message_item, parent, false)
+        val view: View = LayoutInflater.from(parent.context).inflate(R.layout.message_item,
+            parent, false)
         return MessageViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: MessageViewHolder, position: Int, model: Message) {
+    override fun onBindViewHolder(holder: MessageViewHolder, position: Int, message: Message) {
         val context = holder.messageItemBinding.root.context
+        val currentUser = DataBase.getCurrentUser()
 
-        if(model.send_by == DataBase.getCurrentUser().uid) (holder.messageItemBinding.cardView.layoutParams as ViewGroup.MarginLayoutParams).marginEnd = 0
-        else (holder.messageItemBinding.cardView.layoutParams as ViewGroup.MarginLayoutParams).marginStart = 0
+        if(message.send_by == currentUser.uid) (holder.messageItemBinding.cardView.layoutParams
+                as ViewGroup.MarginLayoutParams).marginEnd = 0
+        else if(message.send_by != "system") (holder.messageItemBinding.cardView.layoutParams as ViewGroup.MarginLayoutParams).marginStart = 0
+        else if(message.send_by == "system"){
+            holder.messageItemBinding.message.gravity = Gravity.CENTER
+            holder.messageItemBinding.message.setTextColor(Color.RED)
+            holder.messageItemBinding.cardView.setCardBackgroundColor(Color.TRANSPARENT)
+        }
 
-        if(roomType == "group") DataBase.getUserByUid(model.send_by).get().addOnSuccessListener {
-            val user = it.getValue(User::class.java)?: return@addOnSuccessListener
+        if(roomType == "group" && message.send_by != "system") DataBase.getUserByUid(message.send_by).get()
+            .addOnSuccessListener { snap ->
+            val user = snap.getValue(User::class.java)?: return@addOnSuccessListener
             var userName = user.phone_number
 
             Contact.getContacts(context).forEach { contact ->
@@ -41,9 +53,14 @@ class MessagesRecyclerAdapter(options: FirebaseRecyclerOptions<Message>, val roo
             (holder.messageItemBinding.message.layoutParams as ViewGroup.MarginLayoutParams).topMargin = 0
             holder.messageItemBinding.userName.visibility = View.VISIBLE
             holder.messageItemBinding.userName.text = userName
+        }else if(roomType == "chat") {
+            if((message.read_status == 0 || message.read_status == 1) && message.send_by != currentUser.uid) {
+                // TODO()
+            }
         }
-        holder.messageItemBinding.message.text = model.text_message
-        holder.messageItemBinding.timeMessage.text = DateFormat.format("HH:mm", model.time_message)
+        holder.messageItemBinding.message.text = message.text_message
+        holder.messageItemBinding.timeMessage.text = if(message.send_by != "system")
+            DateFormat.format("HH:mm", message.time_message) else ""
     }
 
     class MessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

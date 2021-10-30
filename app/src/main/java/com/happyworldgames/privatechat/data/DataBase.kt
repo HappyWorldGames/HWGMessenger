@@ -90,21 +90,32 @@ class DataBase {
                 .orderByChild("time_message").limitToLast(1)
                 .addChildEventListener(object : ChildEventListener{
                     override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
-                        result(snapshot.getValue(Message::class.java))
+                        val message = snapshot.getValue(Message::class.java)
+                        if(message != null){
+                            getUserRoomsByUid(getCurrentUser().uid).orderByChild("room_id")
+                                .equalTo(room.room_id).addChildEventListener(object : ChildEventListener {
+                                    override fun onChildAdded(snapshot: DataSnapshot,
+                                                              previousChildName: String?) {
+                                        val room2 = snapshot.getValue(Room::class.java) ?: return
+                                        room2.reverse_time_last_message = Long.MAX_VALUE - message.time_message
+                                        snapshot.ref.setValue(room2)
+                                    }
+                                    override fun onChildChanged(snapshot: DataSnapshot,
+                                                                previousChildName: String?) {}
+                                    override fun onChildRemoved(snapshot: DataSnapshot) {}
+                                    override fun onChildMoved(snapshot: DataSnapshot,
+                                                              previousChildName: String?) {}
+                                    override fun onCancelled(error: DatabaseError) {}
+
+                                })
+                        }
+                        result(message)
                     }
 
-                    override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
-                        TODO()
-                    }
-
-                    override fun onChildRemoved(snapshot: DataSnapshot) {
-                    }
-
-                    override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {
-                    }
-
-                    override fun onCancelled(error: DatabaseError) {
-                    }
+                    override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {}
+                    override fun onChildRemoved(snapshot: DataSnapshot) {}
+                    override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {}
+                    override fun onCancelled(error: DatabaseError) {}
                 })
         }
 
