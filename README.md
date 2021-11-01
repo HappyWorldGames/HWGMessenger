@@ -1,3 +1,3 @@
 # PrivateChat
-Simple Messager\n
+Simple Messager\
 Server = Firebase
