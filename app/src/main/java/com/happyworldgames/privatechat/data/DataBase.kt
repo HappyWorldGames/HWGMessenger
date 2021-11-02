@@ -1,9 +1,11 @@
 package com.happyworldgames.privatechat.data
 
 import android.content.Context
+import android.content.SharedPreferences
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.*
+import java.io.File
 
 /*
 /users/%uid%{phone_number, avatar_path}                                 //getUserByUid, getUidByPhoneNumber
@@ -37,8 +39,16 @@ import com.google.firebase.database.*
 class DataBase {
 
     companion object {
-        private fun getInstance(): FirebaseDatabase = FirebaseDatabase
+        fun getInstance(): FirebaseDatabase = FirebaseDatabase
             .getInstance("https://private-chat-629f1-default-rtdb.europe-west1.firebasedatabase.app/")
+        fun getDatabaseReferenceResult(databaseReference: DatabaseReference,
+                                       result: (dataSnapshot: DataSnapshot?) -> Unit) {
+            databaseReference.get().addOnSuccessListener {
+                result(it)
+            }.addOnFailureListener {
+                result(null)
+            }
+        }
 
         fun getUidByPhoneNumber(phoneNumber: String, result: (uid: String?) -> Unit) {
             getInstance().getReference("users").orderByChild("phone_number")
@@ -125,6 +135,41 @@ class DataBase {
             val userInfo = getUserByUid(currentUser.uid)
 
             userInfo.setValue(User(currentUser.uid, currentUser.phoneNumber!!), avatar_path)
+        }
+
+        fun saveLastSyncResult(context: Context, rooms: List<Room>) {
+            val chatShared = context.getSharedPreferences("chats", Context.MODE_PRIVATE).edit()
+            val groupShared = context.getSharedPreferences("groups", Context.MODE_PRIVATE).edit()
+            chatShared.clear()
+            groupShared.clear()
+            rooms.forEach { room ->
+                val r = when(room.room_type){
+                    "chat" -> chatShared
+                    "group" -> groupShared
+                    else -> null
+                }
+                r?.putLong(room.room_id, room.reverse_time_last_message)
+            }
+            chatShared.apply()
+            groupShared.apply()
+        }
+        fun loadLastSyncResult(context: Context): List<Room> {
+            val chatShared = context.getSharedPreferences("chats", Context.MODE_PRIVATE)
+            val groupShared = context.getSharedPreferences("groups", Context.MODE_PRIVATE)
+            val rooms = arrayListOf<Room>()
+
+            val sharedAddToRooms = fun(roomType: String, sharedPreferences: SharedPreferences){
+                if(sharedPreferences.all.isNotEmpty()) for(entry in sharedPreferences.all.entries) {
+                    val chatId = entry.key
+                    val timeLastMessage = entry.value as Long
+                    rooms.add(Room(roomType, chatId, timeLastMessage))
+                }
+            }
+
+            sharedAddToRooms("chat", chatShared)
+            sharedAddToRooms("group", groupShared)
+
+            return rooms
         }
     }
 }
