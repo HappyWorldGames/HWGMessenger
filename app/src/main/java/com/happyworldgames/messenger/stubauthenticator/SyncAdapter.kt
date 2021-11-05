@@ -1,4 +1,4 @@
-package com.happyworldgames.privatechat.stubauthenticator
+package com.happyworldgames.messenger.stubauthenticator
 
 import android.accounts.Account
 import android.app.NotificationChannel
@@ -9,12 +9,13 @@ import android.os.Build
 import android.os.Bundle
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.app.Person
 import com.google.firebase.FirebaseApp
-import com.happyworldgames.privatechat.R
-import com.happyworldgames.privatechat.data.Contact
-import com.happyworldgames.privatechat.data.DataBase
-import com.happyworldgames.privatechat.data.Room
-import com.happyworldgames.privatechat.data.User
+import com.happyworldgames.messenger.R
+import com.happyworldgames.messenger.data.Contact
+import com.happyworldgames.messenger.data.DataBase
+import com.happyworldgames.messenger.data.Room
+import com.happyworldgames.messenger.data.User
 
 class SyncAdapter @JvmOverloads constructor(
     context: Context,
@@ -71,8 +72,6 @@ class SyncAdapter @JvmOverloads constructor(
         val NOTIFICATION_ID = 101
         val CHANNEL_ID = "channelID"
 
-        createChannel(CHANNEL_ID, "New Message")
-
         DataBase.getRoomLastMessageByRoom(room) { message ->
             if(message == null) return@getRoomLastMessageByRoom
             DataBase.getDatabaseReferenceResult(DataBase.getUserByUid(message.send_by)) {
@@ -85,33 +84,38 @@ class SyncAdapter @JvmOverloads constructor(
                         return@forEach
                     }
                 }
+
+                val person = Person.Builder().setName(name).build()
+                val messagingStyle = NotificationCompat.MessagingStyle(person)
+                    .addMessage(message.text_message, message.time_message, person)
+
                 val builder = NotificationCompat.Builder(context, CHANNEL_ID)
                     .setSmallIcon(R.drawable.ic_avatar)
-                    .setContentTitle(name)
+                    /*.setContentTitle(name)
                     .setContentText(message.text_message)
                     .setAutoCancel(true)
-                    .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                    .setPriority(NotificationCompat.PRIORITY_DEFAULT)*/
+                    .setStyle(messagingStyle)
 
                 with(NotificationManagerCompat.from(context)) {
-                    notify(NOTIFICATION_ID, builder.build()) // посылаем уведомление
+                    createChannel(CHANNEL_ID, "New Message")
+                    notify(NOTIFICATION_ID, builder.build())
                 }
             }
         }
     }
     private fun createChannel(channelId: String, channelName: String) {
-        // Step 1.6 START create a channel
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val notificationChannel = NotificationChannel(
                 channelId,
                 channelName,
-                // Change importance
                 NotificationManager.IMPORTANCE_LOW
             )
 
             notificationChannel.enableLights(true)
             notificationChannel.lightColor = Color.RED
             notificationChannel.enableVibration(true)
-            notificationChannel.description = "Time for breakfast!"
+            notificationChannel.description = "Some one write new message for you"
 
             val notificationManager = context.getSystemService(
                 NotificationManager::class.java

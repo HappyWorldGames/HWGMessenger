@@ -1,4 +1,4 @@
-package com.happyworldgames.privatechat
+package com.happyworldgames.messenger
 
 import org.junit.Test
 

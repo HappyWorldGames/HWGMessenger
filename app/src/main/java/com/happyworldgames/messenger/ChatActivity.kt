@@ -1,5 +1,6 @@
-package com.happyworldgames.privatechat
+package com.happyworldgames.messenger
 
+import android.content.Intent
 import android.os.Bundle
 import android.text.format.DateFormat
 import android.view.KeyEvent
@@ -8,19 +9,20 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.firebase.ui.database.FirebaseRecyclerOptions
 import com.google.firebase.database.Query
-import com.happyworldgames.privatechat.adapters.MessagesRecyclerAdapter
-import com.happyworldgames.privatechat.data.DataBase
-import com.happyworldgames.privatechat.data.Message
-import com.happyworldgames.privatechat.data.Room
-import com.happyworldgames.privatechat.data.Storage
-import com.happyworldgames.privatechat.databinding.ActivityChatBinding
-import com.happyworldgames.privatechat.databinding.ChatActionBarBinding
+import com.happyworldgames.messenger.adapters.MessagesRecyclerAdapter
+import com.happyworldgames.messenger.data.DataBase
+import com.happyworldgames.messenger.data.Message
+import com.happyworldgames.messenger.data.Room
+import com.happyworldgames.messenger.data.Storage
+import com.happyworldgames.messenger.databinding.ActivityChatBinding
+import com.happyworldgames.messenger.databinding.ChatActionBarBinding
 import java.util.*
 
 class ChatActivity : AppCompatActivity() {
 
     private val activityChat: ActivityChatBinding by lazy { ActivityChatBinding.inflate(layoutInflater) }
-    private val chatActionBar: ChatActionBarBinding by lazy { ChatActionBarBinding.bind(supportActionBar!!.customView) }
+    private val chatActionBar: ChatActionBarBinding by lazy { ChatActionBarBinding.bind(supportActionBar!!
+        .customView) }
     private val room by lazy { Room(intent.getStringExtra("room_type")!!,
         intent.getStringExtra("room_id")!!) }
 
@@ -60,9 +62,11 @@ class ChatActivity : AppCompatActivity() {
             .setQuery(query, Message::class.java)
             .build()
 
-        adapter = MessagesRecyclerAdapter(options, room.room_type)
+        adapter = MessagesRecyclerAdapter(options, room.room_type, this)
+        val linearLayoutManager = LinearLayoutManager(this)
+        linearLayoutManager.stackFromEnd = true
 
-        activityChat.messagesRecycler.layoutManager = LinearLayoutManager(this)
+        activityChat.messagesRecycler.layoutManager = linearLayoutManager
         activityChat.messagesRecycler.adapter = adapter
 
         activityChat.sendFab.setOnClickListener {
@@ -96,18 +100,22 @@ class ChatActivity : AppCompatActivity() {
         val m = databaseReference.child("messages").push()
         if(!isSystem) {
             DataBase.getRoomLastMessageByRoom(room) { message ->
-                if(activityChat.messageText.text.toString().isEmpty()) return@getRoomLastMessageByRoom
+                val text = activityChat.messageText.text.toString().trim()
+                if(text.isEmpty()) return@getRoomLastMessageByRoom
+
                 val con = fun(){
-                    m.setValue(Message(DataBase.getCurrentUser().uid, activityChat.messageText.text.toString(),
+                    m.setValue(Message(DataBase.getCurrentUser().uid, text,
                         if (room.room_type == "group") -1 else 0))
                     activityChat.messageText.setText("")
+                    scrollDown()
                 }
                 if(message != null) {
                     val calendar = GregorianCalendar()
                     calendar.timeInMillis = message.time_message
                     val calendar2 = GregorianCalendar()
                     if(calendar.get(Calendar.DAY_OF_YEAR) < calendar2.get(Calendar.DAY_OF_YEAR)){
-                        sendMessage(true, DateFormat.format("dd.MM.yyyy", System.currentTimeMillis()).toString())
+                        sendMessage(true, DateFormat.format("dd.MM.yyyy",
+                            System.currentTimeMillis()).toString())
                     }
                     con()
                 }else con()
@@ -115,8 +123,13 @@ class ChatActivity : AppCompatActivity() {
         }else if(systemText.isNotEmpty()) m.setValue(Message("system", systemText, -1))
     }
 
+    fun scrollDown() {
+        if(adapter != null) activityChat.messagesRecycler
+            .smoothScrollToPosition(adapter!!.itemCount - 1)
+    }
+
     override fun onBackPressed() {
-        supportFinishAfterTransition()
-        //startActivity(Intent(this, MainActivity::class.java))
+        //supportFinishAfterTransition()
+        startActivity(Intent(this, MainActivity::class.java))
     }
 }

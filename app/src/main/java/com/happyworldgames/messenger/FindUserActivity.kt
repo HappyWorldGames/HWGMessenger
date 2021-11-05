@@ -1,4 +1,4 @@
-package com.happyworldgames.privatechat
+package com.happyworldgames.messenger
 
 import android.app.Activity
 import android.content.Intent
@@ -12,8 +12,8 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.integration.android.IntentIntegrator
 import com.google.zxing.qrcode.QRCodeWriter
-import com.happyworldgames.privatechat.data.DataBase
-import com.happyworldgames.privatechat.databinding.ActivityFindUserBinding
+import com.happyworldgames.messenger.data.DataBase
+import com.happyworldgames.messenger.databinding.ActivityFindUserBinding
 
 class FindUserActivity : AppCompatActivity() {
 

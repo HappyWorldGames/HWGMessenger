@@ -1,4 +1,4 @@
-package com.happyworldgames.privatechat
+package com.happyworldgames.messenger
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -6,10 +6,10 @@ import android.os.Build
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.happyworldgames.privatechat.adapters.ContactsRecyclerAdapter
-import com.happyworldgames.privatechat.data.Contact
-import com.happyworldgames.privatechat.data.DataBase
-import com.happyworldgames.privatechat.databinding.ActivityContactsBinding
+import com.happyworldgames.messenger.adapters.ContactsRecyclerAdapter
+import com.happyworldgames.messenger.data.Contact
+import com.happyworldgames.messenger.data.DataBase
+import com.happyworldgames.messenger.databinding.ActivityContactsBinding
 
 class ContactsActivity : AppCompatActivity() {
 
@@ -37,7 +37,7 @@ class ContactsActivity : AppCompatActivity() {
             DataBase.getUidByPhoneNumber(contact.phoneNumber) { uid ->
                 if (uid == null) return@getUidByPhoneNumber
 
-                result.add(contact)
+                if(contact.phoneNumber != DataBase.getCurrentUser().phoneNumber) result.add(contact)
                 activityContacts.contactsRecycler.adapter?.notifyItemRangeChanged(0, result.size)
             }
         }

@@ -1,4 +1,4 @@
-package com.happyworldgames.privatechat.stubauthenticator
+package com.happyworldgames.messenger.stubauthenticator
 
 import android.content.ContentProvider
 import android.content.ContentValues

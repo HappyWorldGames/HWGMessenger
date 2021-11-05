@@ -1,4 +1,4 @@
-package com.happyworldgames.privatechat.data
+package com.happyworldgames.messenger.data
 
 import java.util.*
 

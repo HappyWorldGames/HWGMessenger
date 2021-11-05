@@ -1,17 +1,20 @@
-package com.happyworldgames.privatechat.data
+package com.happyworldgames.messenger.data
 
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.*
-import java.io.File
+import com.happyworldgames.messenger.ChatActivity
 
 /*
 /users/%uid%{phone_number, avatar_path}                                 //getUserByUid, getUidByPhoneNumber
-/rooms/%uid%/%room%{                                                    //getUserChatsByUid
-    room_type = (chat, group)
-    room_id = if room_type == "chat" then %chat_id% else %group_id%
+/rooms/%uid%/{                                                          //getUserRoomsByUid
+    %room%{
+        room_type = (chat, group)
+        room_id = if room_type == "chat" then %chat_id% else %group_id%
+    }
 }
 /chats/%chat_id%{                                                       //getChatByChatId
     messages/%message%{
@@ -52,9 +55,16 @@ class DataBase {
 
         fun getUidByPhoneNumber(phoneNumber: String, result: (uid: String?) -> Unit) {
             getInstance().getReference("users").orderByChild("phone_number")
-                .equalTo(phoneNumber).get().addOnSuccessListener {
-                    result(it.getValue(User::class.java)?.uid)
-            }
+                .equalTo(phoneNumber).addChildEventListener(object : ChildEventListener {
+                    override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
+                        result(snapshot.getValue(User::class.java)?.uid)
+                    }
+                    override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {}
+                    override fun onChildRemoved(snapshot: DataSnapshot) {}
+                    override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {}
+                    override fun onCancelled(error: DatabaseError) {}
+
+                })
         }
         fun getUserByUid(uid: String): DatabaseReference = getInstance()
             .getReference("users").child(uid)
@@ -122,11 +132,11 @@ class DataBase {
                         result(message)
                     }
 
-                    override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {}
-                    override fun onChildRemoved(snapshot: DataSnapshot) {}
-                    override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {}
-                    override fun onCancelled(error: DatabaseError) {}
-                })
+                override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {}
+                override fun onChildRemoved(snapshot: DataSnapshot) {}
+                override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {}
+                override fun onCancelled(error: DatabaseError) {}
+            })
         }
 
         fun getCurrentUser(): FirebaseUser = FirebaseAuth.getInstance().currentUser!!
@@ -135,6 +145,28 @@ class DataBase {
             val userInfo = getUserByUid(currentUser.uid)
 
             userInfo.setValue(User(currentUser.uid, currentUser.phoneNumber!!), avatar_path)
+        }
+        fun createChat(context: Context, otherUid: String) {
+            val currentUid = getCurrentUser().uid
+
+            val chatReference = getInstance().getReference("chats").push()
+            if(chatReference.key == null) return
+            chatReference.child("members").setValue(hashMapOf(currentUid to true, otherUid to true))
+            chatReference.child("messages").push()
+                .setValue(Message("system", "chat created"), -1)
+
+            val createChatByUid = fun(uid: String) {
+                getUserRoomsByUid(uid).push().setValue(Room("chat", chatReference.key!!))
+            }
+            createChatByUid(currentUid)
+            createChatByUid(otherUid)
+
+            val intent = Intent(context, ChatActivity::class.java)
+            intent.apply {
+                putExtra("room_type", "chat")
+                putExtra("room_id", chatReference.key)
+            }
+            context.startActivity(intent)
         }
 
         fun saveLastSyncResult(context: Context, rooms: List<Room>) {

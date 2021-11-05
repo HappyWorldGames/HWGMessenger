@@ -1,4 +1,4 @@
-package com.happyworldgames.privatechat.adapters
+package com.happyworldgames.messenger.adapters
 
 import android.app.Activity
 import android.content.Intent
@@ -12,12 +12,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.firebase.ui.database.FirebaseRecyclerAdapter
 import com.firebase.ui.database.FirebaseRecyclerOptions
-import com.happyworldgames.privatechat.ChatActivity
-import com.happyworldgames.privatechat.R
-import com.happyworldgames.privatechat.data.DataBase
-import com.happyworldgames.privatechat.data.Room
-import com.happyworldgames.privatechat.data.Storage
-import com.happyworldgames.privatechat.databinding.ChatItemBinding
+import com.happyworldgames.messenger.ChatActivity
+import com.happyworldgames.messenger.R
+import com.happyworldgames.messenger.data.DataBase
+import com.happyworldgames.messenger.data.Room
+import com.happyworldgames.messenger.data.Storage
+import com.happyworldgames.messenger.databinding.ChatItemBinding
 
 class ChatsRecyclerAdapter(options: FirebaseRecyclerOptions<Room>) : FirebaseRecyclerAdapter<Room,
         ChatsRecyclerAdapter.ChatViewHolder>(options) {

@@ -1,4 +1,4 @@
-package com.happyworldgames.privatechat.data
+package com.happyworldgames.messenger.data
 
 import android.net.Uri
 import com.google.firebase.storage.FirebaseStorage

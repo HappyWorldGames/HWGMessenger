@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.happyworldgames.privatechat">
+    package="messenger">
 
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.READ_SYNC_SETTINGS"/>
@@ -17,7 +17,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.PrivateChat">
         <activity
-            android:name=".MainActivity"
+            android:name="com.happyworldgames.com.happyworldgames.messenger.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -25,9 +25,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ContactsActivity"/>
-        <activity android:name=".FindUserActivity"/>
-        <activity android:name=".ChatActivity"/>
+        <activity android:name="com.happyworldgames.com.happyworldgames.messenger.ContactsActivity"/>
+        <activity android:name="com.happyworldgames.com.happyworldgames.messenger.FindUserActivity"/>
+        <activity android:name="com.happyworldgames.com.happyworldgames.messenger.ChatActivity"/>
         <activity
             android:name="com.journeyapps.barcodescanner.CaptureActivity"
             android:screenOrientation="fullSensor"
@@ -35,7 +35,7 @@
             android:stateNotNeeded="true"/>
 
         <service
-            android:name=".stubauthenticator.AuthenticatorService"
+            android:name="com.happyworldgames.com.happyworldgames.messenger.stubauthenticator.AuthenticatorService"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.accounts.AccountAuthenticator"/>
@@ -45,7 +45,7 @@
                 android:resource="@xml/authenticator" />
         </service>
         <service
-            android:name=".stubauthenticator.SyncService"
+            android:name="com.happyworldgames.com.happyworldgames.messenger.stubauthenticator.SyncService"
             android:exported="true"
             android:process=":sync">
             <intent-filter>
@@ -56,8 +56,8 @@
         </service>
 
         <provider
-            android:name=".stubauthenticator.StubProvider"
-            android:authorities="com.happyworldgames.privatechat.provider"
+            android:name="com.happyworldgames.com.happyworldgames.messenger.stubauthenticator.StubProvider"
+            android:authorities="messenger.provider"
             android:exported="false"
             android:syncable="true"/>
     </application>

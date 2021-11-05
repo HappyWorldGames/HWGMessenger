@@ -1,4 +1,4 @@
-package com.happyworldgames.privatechat
+package com.happyworldgames.messenger
 
 import android.Manifest
 import android.accounts.Account
@@ -19,15 +19,15 @@ import com.firebase.ui.database.FirebaseRecyclerOptions
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.Query
-import com.happyworldgames.privatechat.adapters.ChatsRecyclerAdapter
-import com.happyworldgames.privatechat.data.DataBase
-import com.happyworldgames.privatechat.data.Room
-import com.happyworldgames.privatechat.databinding.ActivityMainBinding
+import com.happyworldgames.messenger.adapters.ChatsRecyclerAdapter
+import com.happyworldgames.messenger.data.DataBase
+import com.happyworldgames.messenger.data.Room
+import com.happyworldgames.messenger.databinding.ActivityMainBinding
 
 // The authority for the sync adapter's content provider
-const val AUTHORITY = "com.happyworldgames.privatechat.provider"
+const val AUTHORITY = "com.happyworldgames.com.happyworldgames.messenger.provider"
 // An account type, in the form of a domain name
-const val ACCOUNT_TYPE = "com.happyworldgames.privatechat"
+const val ACCOUNT_TYPE = "com.happyworldgames.com.happyworldgames.messenger"
 // The account name
 const val ACCOUNT = "Private Chat"
 
