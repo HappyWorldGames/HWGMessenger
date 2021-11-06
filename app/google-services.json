@@ -1,10 +1,48 @@
 {
   "project_info": {
     "project_number": "730291149860",
+    "firebase_url": "https://private-chat-629f1-default-rtdb.europe-west1.firebasedatabase.app",
     "project_id": "private-chat-629f1",
     "storage_bucket": "private-chat-629f1.appspot.com"
   },
   "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:730291149860:android:99d836098aaa61c9094cb1",
+        "android_client_info": {
+          "package_name": "com.happyworldgames.messenger"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "730291149860-8lhkck95atm0eq1japunfkn84smp151b.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.happyworldgames.messenger",
+            "certificate_hash": "1eeffb63bfd8c3bf4777dc9ad0fbab7d4457089c"
+          }
+        },
+        {
+          "client_id": "730291149860-v9kphncms9oo45gjm2ttbtuvmhsg4rst.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBlkyIx8xayluI8VaU-sUVL_w_DYSROvyo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "730291149860-v9kphncms9oo45gjm2ttbtuvmhsg4rst.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
     {
       "client_info": {
         "mobilesdk_app_id": "1:730291149860:android:6637c5fe12942d22094cb1",

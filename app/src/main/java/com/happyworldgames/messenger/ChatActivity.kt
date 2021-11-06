@@ -14,8 +14,8 @@ import com.happyworldgames.messenger.data.DataBase
 import com.happyworldgames.messenger.data.Message
 import com.happyworldgames.messenger.data.Room
 import com.happyworldgames.messenger.data.Storage
-import com.happyworldgames.messenger.databinding.ActivityChatBinding
 import com.happyworldgames.messenger.databinding.ChatActionBarBinding
+import com.happyworldgames.messenger.databinding.ActivityChatBinding
 import java.util.*
 
 class ChatActivity : AppCompatActivity() {
