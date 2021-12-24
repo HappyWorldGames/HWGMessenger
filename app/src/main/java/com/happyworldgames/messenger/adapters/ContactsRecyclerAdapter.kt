@@ -56,12 +56,6 @@ class ContactsRecyclerAdapter(private val contacts: Set<Contact>)
                     }
                 }
             }
-            /*intent.apply {
-                //putExtra("room_type", room.room_type)
-                //putExtra("room_id", room.room_id)
-            }
-
-            context.startActivity(intent)*/
         }
     }
 

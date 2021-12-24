@@ -63,7 +63,6 @@ class DataBase {
                     override fun onChildRemoved(snapshot: DataSnapshot) {}
                     override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {}
                     override fun onCancelled(error: DatabaseError) {}
-
                 })
         }
         fun getUserByUid(uid: String): DatabaseReference = getInstance()
@@ -95,7 +94,8 @@ class DataBase {
                 }
             }else if(room.room_type == "group") {
                 getGroupByGroupId(room.room_id).child("info").get().addOnSuccessListener {
-                    val group = it.getValue(Group::class.java) ?: return@addOnSuccessListener
+                        gGroup ->
+                    val group = gGroup.getValue(Group::class.java) ?: return@addOnSuccessListener
                     result(group.group_name, group.icon_path)
                 }
             }
@@ -117,7 +117,8 @@ class DataBase {
                                     override fun onChildAdded(snapshot: DataSnapshot,
                                                               previousChildName: String?) {
                                         val room2 = snapshot.getValue(Room::class.java) ?: return
-                                        room2.reverse_time_last_message = Long.MAX_VALUE - message.time_message
+                                        room2.reverse_time_last_message =
+                                            Long.MAX_VALUE - message.time_message
                                         snapshot.ref.setValue(room2)
                                     }
                                     override fun onChildChanged(snapshot: DataSnapshot,
@@ -151,7 +152,8 @@ class DataBase {
 
             val chatReference = getInstance().getReference("chats").push()
             if(chatReference.key == null) return
-            chatReference.child("members").setValue(hashMapOf(currentUid to true, otherUid to true))
+            chatReference.child("members").setValue(hashMapOf(currentUid to true,
+                otherUid to true))
             chatReference.child("messages").push()
                 .setValue(Message("system", "chat created"), -1)
 

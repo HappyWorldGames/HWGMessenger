@@ -23,15 +23,18 @@ import com.happyworldgames.messenger.adapters.ChatsRecyclerAdapter
 import com.happyworldgames.messenger.data.DataBase
 import com.happyworldgames.messenger.data.Room
 import com.happyworldgames.messenger.databinding.ActivityMainBinding
+import kotlinx.coroutines.*
+import kotlin.coroutines.CoroutineContext
 
 // The authority for the sync adapter's content provider
-const val AUTHORITY = "com.happyworldgames.com.happyworldgames.messenger.provider"
+const val AUTHORITY = "com.happyworldgames.messenger.provider"
 // An account type, in the form of a domain name
-const val ACCOUNT_TYPE = "com.happyworldgames.com.happyworldgames.messenger"
+const val ACCOUNT_TYPE = "com.happyworldgames.messenger"
 // The account name
-const val ACCOUNT = "Private Chat"
+const val ACCOUNT = "HWG Messenger"
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), CoroutineScope {
+    override val coroutineContext: CoroutineContext = Dispatchers.Main + SupervisorJob()
 
     private lateinit var mAccount: Account
     private val activityMain: ActivityMainBinding by lazy { ActivityMainBinding.inflate(layoutInflater) }
@@ -74,7 +77,6 @@ class MainActivity : AppCompatActivity() {
                 Snackbar.make(activityMain.root, getString(R.string.auth_accept), Snackbar.LENGTH_LONG).show()
             } else {
                 Snackbar.make(activityMain.root, getString(R.string.auth_failed), Snackbar.LENGTH_LONG).show()
-                //finish()
             }
         }
 
@@ -91,32 +93,36 @@ class MainActivity : AppCompatActivity() {
             checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(arrayOf(Manifest.permission.READ_CONTACTS), 1)
         }
-        mAccount = createSyncAccount()
-        DataBase.getInstance().setPersistenceEnabled(true)
-        ContentResolver.addPeriodicSync(mAccount, AUTHORITY, Bundle.EMPTY, 60)
+        launch(Dispatchers.IO) {
+            mAccount = createSyncAccount()
+            DataBase.getInstance().setPersistenceEnabled(true)
+            ContentResolver.addPeriodicSync(mAccount, AUTHORITY, Bundle.EMPTY, 60)
 
-        activityMain.addChatFab.visibility = View.VISIBLE
+            val query: Query = DataBase.getUserRoomsByUid(DataBase.getCurrentUser().uid)
+                .orderByChild("reverse_time_last_message").limitToLast(50)
 
-        val query: Query = DataBase.getUserRoomsByUid(DataBase.getCurrentUser().uid)
-            .orderByChild("reverse_time_last_message").limitToLast(50)
+            val options = FirebaseRecyclerOptions.Builder<Room>()
+                .setQuery(query, Room::class.java)
+                .build()
 
-        val options = FirebaseRecyclerOptions.Builder<Room>()
-            .setQuery(query, Room::class.java)
-            .build()
+            adapter = ChatsRecyclerAdapter(options)
+            adapter?.startListening()
+            saveLastSyncResult()
 
-        adapter = ChatsRecyclerAdapter(options)
-        adapter?.startListening()
-        saveLastSyncResult()
+            withContext(Dispatchers.Main){
+                activityMain.chatsRecycler.layoutManager = LinearLayoutManager(this@MainActivity)
+                activityMain.chatsRecycler.adapter = adapter
 
-        activityMain.chatsRecycler.layoutManager = LinearLayoutManager(this)
-        activityMain.chatsRecycler.adapter = adapter
+                activityMain.addChatFab.visibility = View.VISIBLE
 
-        activityMain.addChatFab.setOnClickListener {
-            startActivity(Intent(this, ContactsActivity::class.java))
-        }
-        activityMain.swipe.setOnRefreshListener {
-            adapter?.notifyItemRangeChanged(0, adapter!!.itemCount)
-            activityMain.swipe.isRefreshing = false
+                activityMain.addChatFab.setOnClickListener {
+                    startActivity(Intent(this@MainActivity, ContactsActivity::class.java))
+                }
+                activityMain.swipe.setOnRefreshListener {
+                    adapter?.notifyItemRangeChanged(0, adapter!!.itemCount)
+                    activityMain.swipe.isRefreshing = false
+                }
+            }
         }
     }
 
